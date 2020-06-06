@@ -10,13 +10,21 @@ class VKAPI:
             token = f.read()
         self.api = VkApi(token=token)
 
-    def get_friends(self):
-        return self.api.method("friends.get", {"user_id": self.vkid})
+    def get_friends(self, vkid: int = None):
+        if not vkid:
+            vkid = self.vkid
+        return self.api.method("friends.get", {"user_id": vkid})
+
+    def get_matching_friends(self, target_id: int):
+        official_friends = set(self.get_friends()["items"])
+        target_friends = set(self.get_friends(vkid=target_id)["items"])
+        matching_friends = sorted(list(official_friends.intersection(target_friends)))
+        return {"count": len(matching_friends), "items": matching_friends}
 
 
 def main():
-    vkapi = VKAPI()
-    reqres = vkapi.get_friends()
+    vkapi = VKAPI(official_id=512036336)
+    reqres = vkapi.get_matching_friends(22357297)
     pprint(reqres)
 
 
