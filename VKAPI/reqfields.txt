@@ -1,0 +1,7 @@
+home_town
+education
+universities
+schools
+military
+sex
+relatives
