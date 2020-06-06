@@ -15,6 +15,10 @@ class VKAPI:
             vkid = self.vkid
         return self.api.method("friends.get", {"user_id": vkid})
 
+    def friend_of(self, vkid: int):
+        official_friends = self.get_friends()["items"]
+        return (vkid in official_friends)
+
     def get_matching_friends(self, target_id: int):
         official_friends = set(self.get_friends()["items"])
         target_friends = set(self.get_friends(vkid=target_id)["items"])
@@ -24,6 +28,8 @@ class VKAPI:
 
 def main():
     vkapi = VKAPI(official_id=512036336)
+    reqres = vkapi.friend_of(22357297)
+    print(reqres)
     reqres = vkapi.get_matching_friends(22357297)
     pprint(reqres)
 
