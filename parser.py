@@ -23,18 +23,14 @@ class Rater:
         time.sleep(0.5)
         same_maiden_name = self.api.check_maiden_names(target_profile)
         same_last_name = self.api.check_last_names(target_profile)
-        time.sleep(0.5)
         are_related = self.api.are_related(target_profile)
-        time.sleep(0.5)
         matching_city = self.api.matching_city(target_profile)
-        time.sleep(0.5)
 
         education_report = self.api.matching_education(target_profile)
         if len(education_report["match"]) > 0:
             matching_education = True
         else:
             matching_education = False
-        time.sleep(0.5)
         military_report = self.api.matching_military(target_profile)
         if len(military_report["match"]) > 0:
             matching_military = True
