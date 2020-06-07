@@ -5,15 +5,11 @@ import pprint
 from vkapi import verify_url, VkApiWrapper
 from parser import Rater
 
-_DEFAULT_REQ_FIELDS_PATH = 'req_fields.txt'
-
 parser = argparse.ArgumentParser(description='Research vk page.')
 parser.add_argument('--bot_token', type=str, required=True,
                     help=f'Telegram bot token (ex. 1112223334:AAABBBCC4CDDDEEEFFF455GGGH56HHI6IIJ)')
 parser.add_argument('--vk_token', type=str, required=True,
                     help='VK dev token (ex. deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef)')
-parser.add_argument('--req_fields_path', type=str, default=_DEFAULT_REQ_FIELDS_PATH,
-                    help='path to a txt file with the list of profile fields to analyze')
 args = parser.parse_args()
 
 bot = telebot.TeleBot(args.bot_token)
@@ -33,7 +29,7 @@ def find_closest_friends(message):
         return
 
     try:
-        api = VkApiWrapper(vk_url, args.vk_token, args.req_fields_path)
+        api = VkApiWrapper(vk_url, args.vk_token)
         rater = Rater(api)
         friends = rater.get_friends()
         ratings = {}

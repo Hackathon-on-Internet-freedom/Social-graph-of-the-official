@@ -20,11 +20,18 @@ def get_id_from_url(url):
 
 
 class VkApiWrapper:
-    def __init__(self, url, token, req_fields_path):
+    _FIELDS_TO_REQUEST = ['home_town',
+                          'education',
+                          'universities',
+                          'schools',
+                          'military',
+                          'sex',
+                          'relatives',
+                          'maiden_name']
+
+    def __init__(self, url, token):
         self.vk_id = get_id_from_url(url)
         self.api = vk_api.VkApi(token=token)
-        with open(req_fields_path) as f:
-            self.required_fields = f.read().split("\n")
         self.profile_info = self.get_profile_info()
 
     def get_friends(self, vk_id: int = None):
@@ -46,7 +53,7 @@ class VkApiWrapper:
         if not vk_id:
             vk_id = self.vk_id
         if not required_fields:
-            required_fields_prepared = ", ".join(self.required_fields)
+            required_fields_prepared = ", ".join(self._FIELDS_TO_REQUEST)
         else:
             required_fields_prepared = ", ".join(required_fields)
         profile = self.api.method("users.get", {"user_id": vk_id, "fields": required_fields_prepared})
@@ -200,7 +207,6 @@ class VkApiWrapper:
 def parse():
     _DEFAULT_VK_URL = 'https://vk.com/id129244038'  # Алексей Навальный
     _DEFAULT_OTHER_URL = 'https://vk.com/abacabadabacabaeabacabadabacaba'  # Николай Дуров
-    _DEFAULT_REQ_FIELDS_PATH = 'req_fields.txt'
 
     parser = argparse.ArgumentParser(description='Research vk page.')
     parser.add_argument('--vk_token', type=str, help='VK dev token')
@@ -208,15 +214,13 @@ def parse():
                         help=f'URL of a VK profile (ex. {_DEFAULT_VK_URL})')
     parser.add_argument('--other_url', type=str, default=_DEFAULT_OTHER_URL,
                         help=f'URL of another VK profile (ex. {_DEFAULT_OTHER_URL})')
-    parser.add_argument('--req_fields_path', type=str, default=_DEFAULT_REQ_FIELDS_PATH,
-                        help='path to a txt file with the list of profile fields to analyze')
     args = parser.parse_args()
     return args
 
 
 def main():
     args = parse()
-    api = VkApiWrapper(args.url, args.vk_token, args.req_fields_path)
+    api = VkApiWrapper(args.url, args.vk_token)
 
     other_id = get_id_from_url(args.other_url)
     req_res = api.get_matching_subscriptions(other_id)
