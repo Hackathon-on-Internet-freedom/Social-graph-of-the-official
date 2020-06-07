@@ -1,31 +1,24 @@
 import argparse
-import telebot
 import pprint
+
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
+from telegram.ext.dispatcher import run_async
 
 from vkapi import verify_url, VkApiWrapper
 from parser import Rater
 
-parser = argparse.ArgumentParser(description='Research vk page.')
-parser.add_argument('--bot_token', type=str, required=True,
-                    help=f'Telegram bot token (ex. 1112223334:AAABBBCC4CDDDEEEFFF455GGGH56HHI6IIJ)')
-parser.add_argument('--vk_token', type=str, required=True,
-                    help='VK dev token (ex. deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef)')
-args = parser.parse_args()
 
-bot = telebot.TeleBot(args.bot_token)
+@run_async
+def on_start(update, context):
+    update.message.reply_text('Присылайте ссылку на профиль ВК – например, '
+                              'http://vk.com/id99398077 или https://vk.com/durov')
 
 
-@bot.message_handler(commands=['start'])
-def start_message(message):
-    bot.send_message(message.chat.id,
-                     'Присылайте ссылку на профиль ВК – например, http://vk.com/id99398077 или https://vk.com/durov')
-
-
-@bot.message_handler(content_types=['text'])
-def find_closest_friends(message):
-    vk_url = message.text
+@run_async
+def on_text(update, context):
+    vk_url = update.message.text
     if not verify_url(vk_url):
-        bot.reply_to(message, 'Неверная ссылка на профиль! Попробуйте еще раз')
+        update.message.reply_text('Неверная ссылка на профиль! Попробуйте еще раз', quote=True)
         return
 
     try:
@@ -37,14 +30,32 @@ def find_closest_friends(message):
             ratings[friend] = rater.rate(friend)
     except Exception as e:
         print(e)
-        bot.reply_to(message, 'Что-то пошло не так :(')
+        update.message.reply_text('Что-то пошло не так :(', quote=True)
         return
 
     # TODO: Сформировать ответ за запрос.
     reply_message = pprint.pformat(ratings)
 
-    bot.reply_to(message, reply_message)
+    update.message.reply_text(reply_message, quote=True)
 
 
-print('Bot started polling...')
-bot.polling()
+def parse():
+    parser = argparse.ArgumentParser(description='Research vk page.')
+    parser.add_argument('--bot_token', type=str, required=True,
+                        help=f'Telegram bot token (ex. 1112223334:AAABBBCC4CDDDEEEFFF455GGGH56HHI6IIJ)')
+    parser.add_argument('--vk_token', type=str, required=True,
+                        help='VK dev token (ex. deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef)')
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    args = parse()
+
+    updater = Updater(token=args.bot_token, use_context=True)
+
+    dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler('start', on_start))
+    dispatcher.add_handler(MessageHandler(Filters.text, on_text))
+
+    updater.start_polling()
+    print('Bot started polling...')
