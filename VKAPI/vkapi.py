@@ -14,6 +14,7 @@ class VKAPI:
         self.api = VkApi(token=token)
         with open(required_fields_config_location) as f:
             self.required_fields = f.read().split("\n")
+        self.profile_info = self.get_profile_info()
 
     def get_friends(self, vkid: int = None):
         if not vkid:
@@ -41,9 +42,9 @@ class VKAPI:
         pprint(profile)
         return profile[0]
 
-    def check_last_names(self, target_id: int):
-        profile1 = self.get_profile_info()
-        profile2 = self.get_profile_info(target_id)
+    def check_last_names(self, friend_profile: dict):
+        profile1 = self.profile_info
+        profile2 = friend_profile
         last_name1 = profile1["last_name"]
         last_name2 = profile2["last_name"]
         if len(last_name1) < len(last_name2):
@@ -54,17 +55,17 @@ class VKAPI:
             long_last_name = last_name1
         return (long_last_name.startswith(short_last_name[:-2]))
 
-    def matching_city(self, target_id: int):
-        profile1 = self.get_profile_info()
-        profile2 = self.get_profile_info(target_id)
+    def matching_city(self, target_profile: dict):
+        profile1 = self.profile_info
+        profile2 = target_profile
         home_town1 = profile1.get("home_town")
         home_town2 = profile2.get("home_town")
         return (home_town1 == home_town2)
 
-    def matching_education(self, target_id: int):
-        profile1 = self.get_profile_info()
+    def matching_education(self, target_profile: dict):
+        profile1 = self.profile_info
         name1 = f"{profile1['first_name']} {profile1['last_name']}"
-        profile2 = self.get_profile_info(target_id)
+        profile2 = target_profile
         name2 = f"{profile2['first_name']} {profile2['last_name']}"
         result = {"match": {}, "mismatch": {}}
         for field in ["faculty", "faculty_name", "graduation", "university", "university_name"]:
@@ -83,9 +84,9 @@ class VKAPI:
             result = self._generic_comparison(result, profile1, profile2, field)
         return result
 
-    def matching_military(self, target_id: int):
-        profile1 = self.get_profile_info()
-        profile2 = self.get_profile_info(target_id)
+    def matching_military(self, target_profile: dict):
+        profile1 = self.profile_info
+        profile2 = target_profile
         pprint(profile1)
         result = {"match": {}, "mismatch": {}}
         result = self._generic_comparison(result, profile1, profile2, "military")
@@ -159,13 +160,13 @@ class VKAPI:
         }
         return result
 
-    def are_related(self, target_id: int):
-        relations1 = self.get_profile_info().get("relatives")
+    def are_related(self, target_profile: dict):
+        relations1 = self.profile_info.get("relatives")
         if relations1:
             for relation in relations1:
-                if relation["id"] == target_id:
+                if relation["id"] == target_profile["id"]:
                     return True
-        relations2 = self.get_profile_info(target_id).get("relatives")
+        relations2 = self.get_profile_info(target_profile["id"]).get("relatives")
         if relations2:
             for relation in relations2:
                 if relation["id"] == self.vkid:
