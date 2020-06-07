@@ -150,8 +150,8 @@ class VkApiWrapper:
     def _generic_comparison(result, profile1, profile2, field):
         name1 = f"{profile1['first_name']} {profile1['last_name']}"
         name2 = f"{profile2['first_name']} {profile2['last_name']}"
-        list1 = profile1.get(field)
-        list2 = profile2.get(field)
+        list1 = profile1.get(field, [])
+        list2 = profile2.get(field, [])
         for item1 in list1:
             for item2 in list2:
                 allkeys = set(item1.keys()) | set(item2.keys())
