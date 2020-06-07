@@ -1,4 +1,5 @@
 import argparse
+import collections
 import json
 import time
 from pprint import pprint
@@ -100,8 +101,11 @@ def main():
     rater = Rater(api)
     result = {}
     for friend in rater.api.friends:
-        result[friend] = rater.rate(rater.api.friends[friend])
-    pprint(result)
+        friend_result = rater.rate(rater.api.friends[friend])
+        rating = friend_result["rating"]
+        result[(rating, friend[0], friend[1])] = friend_result
+    odresult = dict(collections.OrderedDict(reversed(sorted(result.items()))))
+    print(odresult)
 
 
 if __name__ == '__main__':
