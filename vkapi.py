@@ -88,7 +88,7 @@ class VkApiWrapper:
         profile2 = friend_profile
         last_name1 = profile1.get(field)
         last_name2 = profile2.get(field)
-        if last_name1 is not None and last_name2 is not None:
+        if last_name1 is not None and last_name2 is not None and last_name1 != "" and last_name2 != "":
             if len(last_name1) < len(last_name2):
                 short_last_name = last_name1
                 long_last_name = last_name2
