@@ -77,7 +77,9 @@ class VkApiWrapper:
         else:
             required_fields_prepared = ", ".join(required_fields)
         profile = self.api.method("users.get", {"user_id": vk_id, "fields": required_fields_prepared})
-        pprint(profile)
+        print('Обрабатывается {} {} – https://vk.com/id{}'.format(profile[0]['first_name'],
+                                                              profile[0]['last_name'],
+                                                              profile[0]['id']))
         return profile[0]
 
     def _generic_last_name_comparison(self, friend_profile: dict, field: str):
@@ -134,7 +136,6 @@ class VkApiWrapper:
     def matching_military(self, target_profile: dict):
         profile1 = self.profile_info
         profile2 = target_profile
-        pprint(profile1)
         result = {"match": {}, "mismatch": {}}
         result = self._generic_comparison(result, profile1, profile2, "military")
         return result
