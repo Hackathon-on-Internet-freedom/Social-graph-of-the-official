@@ -20,7 +20,7 @@ class Rater:
         target_profile = self.get_profile_info(target_id)
         # Используем искусственные задержки, чтобы не вляпаться в ограничение vkapi, учитывать которое пока неготовы
         are_friends = self.api.friend_of(target_id)
-        time.sleep(0.5)
+        time.sleep(0.34)
         same_maiden_name = self.api.check_maiden_names(target_profile)
         same_last_name = self.api.check_last_names(target_profile)
         are_related = self.api.are_related(target_profile)
@@ -36,7 +36,7 @@ class Rater:
             matching_military = True
         else:
             matching_military = False
-        time.sleep(0.5)
+        time.sleep(0.34)
 
         same_subscriptions = self.api.get_matching_subscriptions(target_id)
         if same_subscriptions["groups"]["count"] > 20:  # условное число, будет настраиваться потом
