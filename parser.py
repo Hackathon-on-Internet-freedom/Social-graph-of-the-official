@@ -1,6 +1,7 @@
 import argparse
 import json
 import time
+from pprint import pprint
 
 from vkapi import VkApiWrapper
 
@@ -11,15 +12,14 @@ class Rater:
         self.api = vk_api
 
     def get_friends(self):
-        return self.api.friends
+        return self.api.friendlist
 
     def get_profile_info(self, target_id):
         return self.api.get_profile_info(target_id)
 
-    def rate(self, target_id):
-        target_profile = self.get_profile_info(target_id)
+    def rate(self, target_profile):
         # Используем искусственные задержки, чтобы не вляпаться в ограничение vkapi, учитывать которое пока неготовы
-        are_friends = self.api.friend_of(target_id)
+        are_friends = self.api.friend_of(target_profile["id"])
         time.sleep(0.34)
         same_maiden_name = self.api.check_maiden_names(target_profile)
         same_last_name = self.api.check_last_names(target_profile)
@@ -38,7 +38,7 @@ class Rater:
             matching_military = False
         time.sleep(0.34)
 
-        same_subscriptions = self.api.get_matching_subscriptions(target_id)
+        same_subscriptions = self.api.get_matching_subscriptions(target_profile["id"])
         if same_subscriptions["groups"]["count"] > 20:  # условное число, будет настраиваться потом
             matching_group_subscriptions = True
         else:
@@ -100,8 +100,8 @@ def main():
     rater = Rater(api)
     result = {}
     for friend in rater.api.friends:
-        result[friend] = rater.rate(friend)
-    print(result)
+        result[friend] = rater.rate(rater.api.friends[friend])
+    pprint(result)
 
 
 if __name__ == '__main__':

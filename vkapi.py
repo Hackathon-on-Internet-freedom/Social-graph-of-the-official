@@ -48,9 +48,14 @@ class VkApiWrapper:
         self.profile_info = profile_info
         if self.profile_info is None:
             self.profile_info = self.get_profile_info()
-        self.friends = friends
-        if self.friends is None:
-            self.friends = self.get_friends()["items"]
+        self.friendlist = friends
+        if self.friendlist is None:
+            self.friendlist = self.get_friends()["items"]
+        self.friends = {}
+        for friend_id in self.friendlist:
+            friend_profile = self.get_profile_info(friend_id)
+            friend_name = f"{friend_profile['first_name']} {friend_profile['last_name']}"
+            self.friends[(friend_id, friend_name)] = friend_profile
         self.subscriptions = subscriptions
         if self.subscriptions is None:
             self.subscriptions = self.get_subscriptions()
@@ -61,7 +66,7 @@ class VkApiWrapper:
         return self.api.method("friends.get", {"user_id": vk_id})
 
     def friend_of(self, vk_id: int):
-        official_friends = self.friends
+        official_friends = self.friendlist
         return vk_id in official_friends
 
     def get_matching_friends(self, target_id: int):
