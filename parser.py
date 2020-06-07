@@ -70,7 +70,7 @@ class Rater:
 def parse():
     _DEFAULT_VK_ID = 129244038  # Алексей Навальный
     _DEFAULT_OTHER_ID = 6  # Николай Дуров
-    _DEFAULT_TOKEN_PATH = 'token_example.txt'
+    _DEFAULT_TOKEN_PATH = 'token.txt'
     _DEFAULT_REQ_FIELDS_PATH = 'req_fields.txt'
 
     parser = argparse.ArgumentParser(description='Research vk page.')
