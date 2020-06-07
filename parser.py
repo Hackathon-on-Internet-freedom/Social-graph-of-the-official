@@ -2,16 +2,16 @@ import argparse
 import json
 import time
 
-from VKAPI.vkapi import VKAPI
+from vkapi import VkApiWrapper
 
 
-class Rater():
+class Rater:
     # Мой автор не хочет заниматься любовью с наследованием, но хочет MVP, почините меня пожалуйста
-    def __init__(self, vkapi):
-        self.api = vkapi
+    def __init__(self, vk_api):
+        self.api = vk_api
 
-    def get_friends(self, vkid: int = None):
-        return self.api.get_friends(vkid)
+    def get_friends(self, vk_id: int = None):
+        return self.api.get_friends(vk_id)
 
     def get_profile_info(self, target_id):
         return self.api.get_profile_info(target_id)
@@ -68,22 +68,30 @@ class Rater():
 
 
 def parse():
+    _DEFAULT_VK_ID = 129244038  # Алексей Навальный
+    _DEFAULT_OTHER_ID = 6  # Николай Дуров
+    _DEFAULT_TOKEN_PATH = 'token_example.txt'
+    _DEFAULT_REQ_FIELDS_PATH = 'req_fields.txt'
+
     parser = argparse.ArgumentParser(description='Research vk page.')
-    parser.add_argument('id', type=int, help='type a vk id')
+    parser.add_argument('--id', type=int, default=_DEFAULT_VK_ID,
+                        help=f'ID of a VK profile (ex. {_DEFAULT_VK_ID})')
+    parser.add_argument('--token_path', type=str, default=_DEFAULT_TOKEN_PATH,
+                        help='path to a txt file with VK dev token')
+    parser.add_argument('--req_fields_path', type=str, default=_DEFAULT_REQ_FIELDS_PATH,
+                        help='path to a txt file with the list of profile fields to analyze')
     args = parser.parse_args()
     return args
 
 
 def main():
     args = parse()
-    official_id = args.id
-    vkapi = VKAPI(official_id,
-                  token_location="../VKAPI/token.txt",
-                  required_fields_config_location="../VKAPI/reqfields.txt")
-    rater = Rater(vkapi)
-    friendlist = rater.get_friends()
+    api = VkApiWrapper(args.id, args.token_path, args.req_fields_path)
+
+    rater = Rater(api)
+    friends_list = rater.get_friends()
     result = {}
-    for friend in friendlist["items"]:
+    for friend in friends_list["items"]:
         result[friend] = rater.rate(friend)
     print(result)
 

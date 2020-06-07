@@ -1,14 +1,15 @@
+import argparse
 from pprint import pprint
 
 import vk_api
 
 
-class VKAPI:
+class VkApiWrapper:
     def __init__(self,
                  official_id: int = 129244038,
                  token_location: str = "token.txt",
-                 required_fields_config_location: str = "reqfields.txt"):
-        self.vkid = official_id
+                 required_fields_config_location: str = "req_fields.txt"):
+        self.vk_id = official_id
         with open(token_location) as f:
             token = f.read()
         self.api = vk_api.VkApi(token=token)
@@ -16,29 +17,29 @@ class VKAPI:
             self.required_fields = f.read().split("\n")
         self.profile_info = self.get_profile_info()
 
-    def get_friends(self, vkid: int = None):
-        if not vkid:
-            vkid = self.vkid
-        return self.api.method("friends.get", {"user_id": vkid})
+    def get_friends(self, vk_id: int = None):
+        if not vk_id:
+            vk_id = self.vk_id
+        return self.api.method("friends.get", {"user_id": vk_id})
 
-    def friend_of(self, vkid: int):
+    def friend_of(self, vk_id: int):
         official_friends = self.get_friends()["items"]
-        return (vkid in official_friends)
+        return vk_id in official_friends
 
     def get_matching_friends(self, target_id: int):
         official_friends = set(self.get_friends()["items"])
-        target_friends = set(self.get_friends(vkid=target_id)["items"])
+        target_friends = set(self.get_friends(vk_id=target_id)["items"])
         matching_friends = sorted(list(official_friends.intersection(target_friends)))
         return {"count": len(matching_friends), "items": matching_friends}
 
-    def get_profile_info(self, vkid: int = None, required_fields: list = None):
-        if not vkid:
-            vkid = self.vkid
+    def get_profile_info(self, vk_id: int = None, required_fields: list = None):
+        if not vk_id:
+            vk_id = self.vk_id
         if not required_fields:
             required_fields_prepared = ", ".join(self.required_fields)
         else:
             required_fields_prepared = ", ".join(required_fields)
-        profile = self.api.method("users.get", {"user_id": vkid, "fields": required_fields_prepared})
+        profile = self.api.method("users.get", {"user_id": vk_id, "fields": required_fields_prepared})
         pprint(profile)
         return profile[0]
 
@@ -53,14 +54,14 @@ class VKAPI:
         else:
             short_last_name = last_name2
             long_last_name = last_name1
-        return (long_last_name.startswith(short_last_name[:-2]))
+        return long_last_name.startswith(short_last_name[:-2])
 
     def matching_city(self, target_profile: dict):
         profile1 = self.profile_info
         profile2 = target_profile
         home_town1 = profile1.get("home_town")
         home_town2 = profile2.get("home_town")
-        return (home_town1 == home_town2)
+        return home_town1 == home_town2
 
     def matching_education(self, target_profile: dict):
         profile1 = self.profile_info
@@ -104,7 +105,7 @@ class VKAPI:
                 for key in allkeys:
                     curval1 = item1.get(key)
                     curval2 = item2.get(key)
-                    if (curval1 == curval2):
+                    if curval1 == curval2:
                         if curval1:  # если None, то зачем сравнивать None с None, нам их совпадение ничего не даёт
                             try:
                                 result["match"][field][key]
@@ -133,11 +134,11 @@ class VKAPI:
                         result["mismatch"][field][key][name2].append(curval2)
         return result
 
-    def get_subscriptions(self, vkid: int = None):
-        if not vkid:
-            vkid = self.vkid
+    def get_subscriptions(self, vk_id: int = None):
+        if not vk_id:
+            vk_id = self.vk_id
         try:
-            subs_list = self.api.method("users.getSubscriptions", values={"user_id": vkid})
+            subs_list = self.api.method("users.getSubscriptions", values={"user_id": vk_id})
         except vk_api.exceptions.ApiError:
             subs_list = {"groups": {"items": [], "count": 0}, "users": {"items": [], "count": 0}}
         return subs_list
@@ -172,15 +173,36 @@ class VKAPI:
         relations2 = self.get_profile_info(target_profile["id"]).get("relatives")
         if relations2:
             for relation in relations2:
-                if relation["id"] == self.vkid:
+                if relation["id"] == self.vk_id:
                     return True
         return False
 
 
+def parse():
+    _DEFAULT_VK_ID = 129244038  # Алексей Навальный
+    _DEFAULT_OTHER_ID = 6  # Николай Дуров
+    _DEFAULT_TOKEN_PATH = 'token_example.txt'
+    _DEFAULT_REQ_FIELDS_PATH = 'req_fields.txt'
+
+    parser = argparse.ArgumentParser(description='Research vk page.')
+    parser.add_argument('--id', type=int, default=_DEFAULT_VK_ID,
+                        help=f'ID of a VK profile (ex. {_DEFAULT_VK_ID})')
+    parser.add_argument('--other', type=int, default=_DEFAULT_OTHER_ID,
+                        help=f'ID of a VK profile (ex. {_DEFAULT_OTHER_ID})')
+    parser.add_argument('--token_path', type=str, default=_DEFAULT_TOKEN_PATH,
+                        help='path to a txt file with VK dev token')
+    parser.add_argument('--req_fields_path', type=str, default=_DEFAULT_REQ_FIELDS_PATH,
+                        help='path to a txt file with the list of profile fields to analyze')
+    args = parser.parse_args()
+    return args
+
+
 def main():
-    vkapi = VKAPI()
-    reqres = vkapi.get_matching_subscriptions(512036336)
-    pprint(reqres)
+    args = parse()
+    api = VkApiWrapper(args.id, args.token_path, args.req_fields_path)
+
+    req_res = api.get_matching_subscriptions(args.other)
+    pprint(req_res)
 
 
 if __name__ == '__main__':
