@@ -26,7 +26,8 @@ def get_id_from_url(url, token):
             raise ValueError
     except ValueError:
         # используем сырой api, потому что vk_api не умеет в ники
-        reqres = requests.get(f"https://api.vk.com/method/users.get?user_ids={name}&v=5.107&access_token={token}").content
+        reqres = requests.get(
+            f"https://api.vk.com/method/users.get?user_ids={name}&v=5.107&access_token={token}").content
         vkid = json.loads(reqres)["response"][0]["id"]
     return vkid
 
