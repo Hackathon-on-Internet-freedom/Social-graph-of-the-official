@@ -51,6 +51,18 @@ class Rater:
         with open("rateconfig.json") as f:
             rateconfig = json.load(f)
 
+        report = {
+            "friends": are_friends,
+            "same_last_name": same_last_name,
+            "same_maiden_name": same_maiden_name,
+            "related": are_related,
+            "matching_city": matching_city,
+            "matching_education": matching_education,
+            "matching_military": matching_military,
+            "matching_group_subscriptions": matching_group_subscriptions,
+            "matching_user_subscriptions": matching_user_subscriptions
+        }
+
         rating = are_friends * rateconfig["friends"] + \
                  same_last_name * rateconfig["last_name"] + \
                  same_maiden_name * rateconfig["maiden_name"] + \
@@ -62,7 +74,12 @@ class Rater:
                  matching_user_subscriptions * rateconfig["usersub"]
 
         print(rating)
-        return rating
+        return {"rating": rating, "report": report}
+
+
+def get_token_from_config():
+    with open("token.txt") as f:
+        return f.read()
 
 
 def parse():
