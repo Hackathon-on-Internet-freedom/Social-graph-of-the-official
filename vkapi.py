@@ -1,6 +1,8 @@
 import argparse
+import json
 from pprint import pprint
 
+import requests
 import vk_api
 
 
@@ -12,13 +14,24 @@ def verify_url(url):
     return True
 
 
-def get_id_from_url(url):
-    return url.split('/')[-1]
+def get_id_from_url(url, token):
+    name = url.split('/')[-1]
+    try:
+        int(name[2:])
+        if name[:2] == "id":
+            vkid = name[2:]
+        else:
+            raise ValueError
+    except ValueError:
+        # используем сырой api, потому что vk_api не умеет в ники
+        reqres = requests.get(f"https://api.vk.com/method/users.get?user_ids={name}&v=5.107&access_token={token}").content
+        vkid = json.loads(reqres)["response"][0]["id"]
+    return vkid
 
 
 class VkApiWrapper:
     def __init__(self, url, token, req_fields_path):
-        self.vk_id = get_id_from_url(url)
+        self.vk_id = get_id_from_url(url, token)
         self.api = vk_api.VkApi(token=token)
         with open(req_fields_path) as f:
             self.required_fields = f.read().split("\n")
@@ -195,7 +208,7 @@ class VkApiWrapper:
 
 
 def parse():
-    _DEFAULT_VK_URL = 'https://vk.com/id129244038'  # Алексей Навальный
+    _DEFAULT_VK_URL = 'https://vk.com/navalny'  # Алексей Навальный
     _DEFAULT_OTHER_URL = 'https://vk.com/abacabadabacabaeabacabadabacaba'  # Николай Дуров
     _DEFAULT_REQ_FIELDS_PATH = 'req_fields.txt'
 
@@ -215,7 +228,7 @@ def main():
     args = parse()
     api = VkApiWrapper(args.url, args.vk_token, args.req_fields_path)
 
-    other_id = get_id_from_url(args.other_url)
+    other_id = get_id_from_url(args.other_url, args.vk_token)
     req_res = api.get_matching_subscriptions(other_id)
     pprint(req_res)
 

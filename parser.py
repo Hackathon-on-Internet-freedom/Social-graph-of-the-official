@@ -66,11 +66,11 @@ class Rater:
 
 
 def parse():
-    _DEFAULT_VK_URL = 'https://vk.com/id129244038'  # Алексей Навальный
+    _DEFAULT_VK_URL = 'https://vk.com/navalny'  # Алексей Навальный
     _DEFAULT_REQ_FIELDS_PATH = 'req_fields.txt'
 
     parser = argparse.ArgumentParser(description='Research vk page.')
-    parser.add_argument('--url', type=int, default=_DEFAULT_VK_URL,
+    parser.add_argument('--url', type=str, default=_DEFAULT_VK_URL,
                         help=f'URL of VK profile (ex. {_DEFAULT_VK_URL})')
     parser.add_argument('--vk_token', type=str, help='VK dev token')
     parser.add_argument('--req_fields_path', type=str, default=_DEFAULT_REQ_FIELDS_PATH,
