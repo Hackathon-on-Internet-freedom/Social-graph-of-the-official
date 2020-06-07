@@ -1,5 +1,6 @@
 import argparse
 from pprint import pprint
+import requests
 
 import vk_api
 
@@ -8,7 +9,9 @@ import vk_api
 def verify_url(url):
     if not url.startswith('https://vk.com/') and not url.startswith('https://vk.com/'):
         return False
-    # TODO: Пинговать страницу профиля чтобу убедиться что она существует и доступна.
+    response = requests.get(url)
+    if int(response.status_code) != 200:
+        return False
     return True
 
 
