@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from vk_api import VkApi
+import vk_api
 
 
 class VKAPI:
@@ -11,7 +11,7 @@ class VKAPI:
         self.vkid = official_id
         with open(token_location) as f:
             token = f.read()
-        self.api = VkApi(token=token)
+        self.api = vk_api.VkApi(token=token)
         with open(required_fields_config_location) as f:
             self.required_fields = f.read().split("\n")
         self.profile_info = self.get_profile_info()
@@ -136,7 +136,10 @@ class VKAPI:
     def get_subscriptions(self, vkid: int = None):
         if not vkid:
             vkid = self.vkid
-        subs_list = self.api.method("users.getSubscriptions", values={"user_id": vkid})
+        try:
+            subs_list = self.api.method("users.getSubscriptions", values={"user_id": vkid})
+        except vk_api.exceptions.ApiError:
+            subs_list = {"groups": {"items": [], "count": 0}, "users": {"items": [], "count": 0}}
         return subs_list
 
     def get_matching_subscriptions(self, target_id: int):
