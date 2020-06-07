@@ -42,7 +42,7 @@ class VkApiWrapper:
                           'relatives',
                           'maiden_name']
 
-    def __init__(self, url, token, profile_info=None, friends=None, subscriptions=None):
+    def __init__(self, url, token, nofriends=False, profile_info=None, friends=None, subscriptions=None):
         self.vk_id = get_id_from_url(url, token)
         self.api = vk_api.VkApi(token=token)
         self.profile_info = profile_info
@@ -52,10 +52,11 @@ class VkApiWrapper:
         if self.friendlist is None:
             self.friendlist = self.get_friends()["items"]
         self.friends = {}
-        for friend_id in self.friendlist:
-            friend_profile = self.get_profile_info(friend_id)
-            friend_name = f"{friend_profile['first_name']} {friend_profile['last_name']}"
-            self.friends[(friend_id, friend_name)] = friend_profile
+        if not nofriends:
+            for friend_id in self.friendlist:
+                friend_profile = self.get_profile_info(friend_id)
+                friend_name = f"{friend_profile['first_name']} {friend_profile['last_name']}"
+                self.friends[(friend_id, friend_name)] = friend_profile
         self.subscriptions = subscriptions
         if self.subscriptions is None:
             self.subscriptions = self.get_subscriptions()
@@ -247,10 +248,10 @@ def parse():
 
 def main():
     args = parse()
-    api = VkApiWrapper(args.url, args.vk_token)
-
+    api = VkApiWrapper(args.url, args.vk_token, nofriends=True)
     other_id = get_id_from_url(args.other_url, args.vk_token)
-    req_res = api.get_matching_subscriptions(other_id)
+    other_profile = api.get_profile_info(other_id)
+    req_res = api.matching_education(other_profile)
     pprint(req_res)
 
 
