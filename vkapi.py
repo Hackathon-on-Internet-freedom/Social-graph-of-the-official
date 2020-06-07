@@ -41,10 +41,18 @@ class VkApiWrapper:
                           'relatives',
                           'maiden_name']
 
-    def __init__(self, url, token):
+    def __init__(self, url, token, profile_info=None, friends=None, subscriptions=None):
         self.vk_id = get_id_from_url(url, token)
         self.api = vk_api.VkApi(token=token)
-        self.profile_info = self.get_profile_info()
+        self.profile_info = profile_info
+        if self.profile_info is None:
+            self.profile_info = self.get_profile_info()
+        self.friends = friends
+        if self.friends is None:
+            self.friends = self.get_friends()["items"]
+        self.subscriptions = subscriptions
+        if self.subscriptions is None:
+            self.subscriptions = self.get_subscriptions()
 
     def get_friends(self, vk_id: int = None):
         if not vk_id:
@@ -52,7 +60,7 @@ class VkApiWrapper:
         return self.api.method("friends.get", {"user_id": vk_id})
 
     def friend_of(self, vk_id: int):
-        official_friends = self.get_friends()["items"]
+        official_friends = self.friends
         return vk_id in official_friends
 
     def get_matching_friends(self, target_id: int):
@@ -182,7 +190,7 @@ class VkApiWrapper:
         return subs_list
 
     def get_matching_subscriptions(self, target_id: int):
-        sublist1 = self.get_subscriptions()
+        sublist1 = self.subscriptions
         groupset1 = set(sublist1["groups"]["items"])
         userset1 = set(sublist1["users"]["items"])
         sublist2 = self.get_subscriptions(target_id)

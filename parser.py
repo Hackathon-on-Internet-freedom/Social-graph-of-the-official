@@ -10,8 +10,8 @@ class Rater:
     def __init__(self, vk_api):
         self.api = vk_api
 
-    def get_friends(self, vk_id: int = None):
-        return self.api.get_friends(vk_id)
+    def get_friends(self):
+        return self.api.friends
 
     def get_profile_info(self, target_id):
         return self.api.get_profile_info(target_id)
@@ -81,9 +81,8 @@ def main():
     api = VkApiWrapper(args.url, args.vk_token)
 
     rater = Rater(api)
-    friends_list = rater.get_friends()
     result = {}
-    for friend in friends_list["items"]:
+    for friend in rater.api.friends:
         result[friend] = rater.rate(friend)
     print(result)
 
