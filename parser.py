@@ -21,6 +21,7 @@ class Rater:
         # Используем искусственные задержки, чтобы не вляпаться в ограничение vkapi, учитывать которое пока неготовы
         are_friends = self.api.friend_of(target_id)
         time.sleep(0.5)
+        same_maiden_name = self.api.check_maiden_names(target_profile)
         same_last_name = self.api.check_last_names(target_profile)
         time.sleep(0.5)
         are_related = self.api.are_related(target_profile)
@@ -56,6 +57,7 @@ class Rater:
 
         rating = are_friends * rateconfig["friends"] + \
                  same_last_name * rateconfig["last_name"] + \
+                 same_maiden_name * rateconfig["maiden_name"] + \
                  are_related * rateconfig["related"] + \
                  matching_city * rateconfig["city"] + \
                  matching_education * rateconfig["education"] + \

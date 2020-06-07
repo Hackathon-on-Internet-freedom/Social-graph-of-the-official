@@ -43,18 +43,27 @@ class VkApiWrapper:
         pprint(profile)
         return profile[0]
 
-    def check_last_names(self, friend_profile: dict):
+    def _generic_last_name_comparison(self, friend_profile: dict, field: str):
         profile1 = self.profile_info
         profile2 = friend_profile
-        last_name1 = profile1["last_name"]
-        last_name2 = profile2["last_name"]
-        if len(last_name1) < len(last_name2):
-            short_last_name = last_name1
-            long_last_name = last_name2
+        last_name1 = profile1.get(field)
+        last_name2 = profile2.get(field)
+        if last_name1 is not None and last_name2 is not None:
+            if len(last_name1) < len(last_name2):
+                short_last_name = last_name1
+                long_last_name = last_name2
+            else:
+                short_last_name = last_name2
+                long_last_name = last_name1
+            return long_last_name.startswith(short_last_name[:-2])
         else:
-            short_last_name = last_name2
-            long_last_name = last_name1
-        return long_last_name.startswith(short_last_name[:-2])
+            return False
+
+    def check_last_names(self, friend_profile: dict):
+        return self._generic_last_name_comparison(friend_profile, "last_name")
+
+    def check_maiden_names(self, friend_profile: dict):
+        return self._generic_last_name_comparison(friend_profile, "maiden_name")
 
     def matching_city(self, target_profile: dict):
         profile1 = self.profile_info
