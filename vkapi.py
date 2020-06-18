@@ -28,8 +28,12 @@ def get_id_from_url(url, token):
         # используем сырой api, потому что vk_api не умеет в ники
         reqres = requests.get(
             f"https://api.vk.com/method/users.get?user_ids={name}&v=5.107&access_token={token}").content
-        vkid = json.loads(reqres)["response"][0]["id"]
-    return vkid
+        read_response = json.loads(reqres)
+        if "response" in read_response:
+            vkid = read_response["response"][0]["id"]
+            return vkid
+        elif "error" in read_response:
+            exit(read_response["error"])
 
 
 class VkApiWrapper:
