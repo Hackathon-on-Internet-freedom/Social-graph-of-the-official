@@ -1,3 +1,5 @@
 python-telegram-bot==12.7
 requests==2.23.0
 vk_api==11.8.0
+marshmallow==3.7.1
+marshmallow-dataclass==7.6.0
