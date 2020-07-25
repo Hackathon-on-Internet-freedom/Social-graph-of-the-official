@@ -13,7 +13,15 @@ var USER_FIELDS = ["screen_name",
 var user_info = API.users.get({
   "user_ids": [Args.user_id],
   "fields": USER_FIELDS
-})[0];
+});
+
+// Check if the user exists.
+if (!user_info) {
+  return {
+    "error_info": "Invalid user_id",
+  };
+}
+user_info = user_info[0];
 
 // Get full list of friends (called max 2 times).
 var batch;
