@@ -1,7 +1,20 @@
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from marshmallow.validate import OneOf, Range
+from marshmallow_dataclass import class_schema
+
+
+@dataclass
+class VKUser:
+    id_: int = field(metadata=dict(data_key='id'))
+    first_name: str
+    last_name: str
+    deactivated: Optional[str] = field(metadata=dict(
+        validate=OneOf(('deleted', 'banned'))
+    ))
+    is_closed: bool
+    can_access_closed: bool
 
 
 @dataclass
@@ -68,23 +81,7 @@ class VKUserCareer:
 
 
 @dataclass
-class VKUserCounters:
-    albums: Optional[int]
-    videos: Optional[int]
-    audios: Optional[int]
-    photos: Optional[int]
-    notes: Optional[int]
-    friends: Optional[int]
-    groups: Optional[int]
-    online_friends: Optional[int]
-    mutual_friends: Optional[int]
-    user_videos: Optional[int]
-    followers: Optional[int]
-    pages: Optional[int]
-
-
-@dataclass
-class VKUserFields:
+class VKUserWithFields(VKUser):
     screen_name: Optional[str]
     maiden_name: Optional[str]
     relatives: Optional[List[VKUserFieldRelative]]
@@ -98,18 +95,10 @@ class VKUserFields:
     home_town: Optional[str]
     schools: Optional[List[VKUserSchool]]
     universities: Optional[List[VKUserUniversity]]
-    military: Optional[VKUserMilitary]
-    career: Optional[VKUserCareer]
-    counters: Optional[VKUserCounters]
+    military: Optional[List[VKUserMilitary]]
+    career: Optional[List[VKUserCareer]]
+    counters: Optional[Any]
 
 
-@dataclass
-class VKUser:
-    id_: int = field(metadata=dict(data_key='id'))
-    first_name: str
-    last_name: str
-    deactivated: Optional[str] = field(metadata=dict(
-        validate=OneOf(('deleted', 'banned'))
-    ))
-    is_closed: bool
-    can_access_closed: bool
+VKUserSchema = class_schema(VKUser)
+VKUserWithFieldsSchema = class_schema(VKUserWithFields)
