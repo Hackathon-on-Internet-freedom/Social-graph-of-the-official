@@ -3,3 +3,4 @@ requests==2.23.0
 vk_api==11.8.0
 marshmallow==3.7.1
 marshmallow-dataclass==7.6.0
+environs==8.0.0
