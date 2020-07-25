@@ -1,0 +1,50 @@
+var USER_FIELDS = ["screen_name",
+                   "maiden_name",
+                   "relatives",
+                   "relation",
+                   "home_town",
+                   "schools",
+                   "universities",
+                   "military",
+                   "career",
+                   "counters"];
+
+// Get user info (called once).
+var user_info = API.users.get({
+  "user_ids": [Args.user_id],
+  "fields": USER_FIELDS
+})[0];
+
+// Get full list of friends (called max 2 times).
+var batch;
+var offset = 0;
+var step = 5000;
+var friends = [];
+do {
+  batch = API.friends.get({
+    "user_id": user_info.id,
+    "offset": offset,
+  }).items;
+  friends = friends + batch;
+  offset = offset + step;
+} while(batch.length == step);
+
+// Get user info for all friends (called max 10 times).
+var batch;
+var offset = 0;
+var step = 1000;
+var friends_user_info = [];
+do {
+  batch = API.users.get({
+    "user_ids": friends.slice(offset, offset + step),
+    "fields": USER_FIELDS
+  });
+  friends_user_info = friends_user_info + batch;
+  offset = offset + step;
+} while(batch.length == step);
+
+return {
+  "user_info": user_info,
+  "num_friends": friends_user_info.length,
+  "friends_info": friends_user_info,
+};
