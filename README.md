@@ -22,3 +22,7 @@ Disclaimer: У меня не будет возможности самому уч
 * alexfrolov1878@gmail.com		
 * https://t.me/alexfrol1878
 * https://github.com/alexfrolov1878
+
+## Техническая дока
+### Требования
+* Python 3.7+
