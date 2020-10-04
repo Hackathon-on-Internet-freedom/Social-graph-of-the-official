@@ -1,7 +1,17 @@
-from .vk_base import VKResponseBase
-from .vk_procedure import VKProcedureResponse, VKResponse, VKResponseSchema
+from .vk_base import VKResponse, VKResponseSchema
+from .vk_procedure import (
+    VKProcedureResponsePayload,
+    VKProcedureResponse,
+    VKProcedureResponseSchema,
+    VKProcedureResponsePayloadSchema,
+)
 
 
 __all__ = [
-    'VKResponseBase', 'VKProcedureResponse', 'VKResponse', 'VKResponseSchema'
+    'VKProcedureResponse',
+    'VKProcedureResponsePayload',
+    'VKProcedureResponsePayloadSchema',
+    'VKProcedureResponseSchema',
+    'VKResponse',
+    'VKResponseSchema',
 ]
