@@ -40,7 +40,15 @@ class VK_API:
         )
         api_response: VKProcedureResponse = \
             VKProcedureResponseSchema().loads(raw_response)
-        if not api_response.error and not api_response.execute_errors:
+        if (
+            not api_response.error
+            and not api_response.execute_errors
+            and not api_response.response.error_info
+        ):
             return api_response.response
-        error = Exception(api_response.error or api_response.execute_errors)
+        error = Exception(
+            api_response.error
+            or api_response.execute_errors
+            or api_response.response.error_info
+        )
         raise error

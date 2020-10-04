@@ -15,9 +15,10 @@ __all__ = [
 
 @dataclass
 class VKProcedureResponsePayload:
-    user_info: VKUserWithFields
-    num_friends: int
-    friends_info: List[VKUserWithFields]
+    user_info: Optional[VKUserWithFields]
+    num_friends: Optional[int]
+    friends_info: Optional[List[VKUserWithFields]]
+    error_info: Optional[str]
 
 
 @dataclass
