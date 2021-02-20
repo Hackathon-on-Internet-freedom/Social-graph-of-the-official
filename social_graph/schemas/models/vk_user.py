@@ -10,18 +10,18 @@ class VKUser:
     id_: int = field(metadata=dict(data_key='id'))
     first_name: str
     last_name: str
-    deactivated: Optional[str] = field(metadata=dict(
-        validate=OneOf(('deleted', 'banned'))
-    ))
-    is_closed: bool
-    can_access_closed: bool
+    deactivated: Optional[str] = field(
+        metadata=dict(validate=OneOf(('deleted', 'banned')))
+    )
+    is_closed: Optional[bool]
+    can_access_closed: Optional[bool]
 
 
 @dataclass
 class VKUserFieldRelative:
-    id_: int = field(metadata=dict(data_key='id'))
-    name: str
-    type_: str = field(metadata=dict(
+    id_: Optional[int] = field(metadata=dict(data_key='id'))
+    name: Optional[str]
+    type_: Optional[str] = field(metadata=dict(
         data_key='type',
         validate=OneOf((
             'child', 'sibling', 'parent', 'grandparent', 'grandchild'

@@ -9,16 +9,29 @@ var USER_FIELDS = ["screen_name",
                    "career",
                    "counters"];
 
+// Verify user id (called once).
+var id_check = API.utils.resolveScreenName({
+  "screen_name": Args.user_id
+});
+if (id_check.length == 0) {
+  return {
+    "error_info": "Param user_id is invalid",
+  };
+}
+if (id_check.type != "user") {
+  return {
+    "error_info": "Param user_id does not correspond to a user",
+  };
+}
+
 // Get user info (called once).
 var user_info = API.users.get({
   "user_ids": [Args.user_id],
   "fields": USER_FIELDS
 });
-
-// Check if the user exists.
-if (!user_info) {
+if (user_info.length == 0) {
   return {
-    "error_info": "Invalid user_id",
+    "error_info": "Unable to get user info",
   };
 }
 user_info = user_info[0];
@@ -28,28 +41,32 @@ var batch;
 var offset = 0;
 var step = 5000;
 var friends = [];
-do {
-  batch = API.friends.get({
-    "user_id": user_info.id,
-    "offset": offset,
-  }).items;
-  friends = friends + batch;
-  offset = offset + step;
-} while(batch.length == step);
+if (!user_info.is_closed) {
+  do {
+    batch = API.friends.get({
+      "user_id": user_info.id,
+      "offset": offset,
+    }).items;
+    friends = friends + batch;
+    offset = offset + step;
+  } while(batch.length == step);
+}
 
 // Get user info for all friends (called max 10 times).
 var batch;
 var offset = 0;
 var step = 1000;
 var friends_user_info = [];
-do {
-  batch = API.users.get({
-    "user_ids": friends.slice(offset, offset + step),
-    "fields": USER_FIELDS
-  });
-  friends_user_info = friends_user_info + batch;
-  offset = offset + step;
-} while(batch.length == step);
+if (friends.length > 0) {
+  do {
+    batch = API.users.get({
+      "user_ids": friends.slice(offset, offset + step),
+      "fields": USER_FIELDS
+    });
+    friends_user_info = friends_user_info + batch;
+    offset = offset + step;
+  } while(batch.length == step);
+}
 
 return {
   "user_info": user_info,
